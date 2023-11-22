@@ -1,0 +1,9 @@
+[Unit]
+Description=Run a demo webserver
+
+[Container]
+Image=quay.io/sallyom/caddy:latest
+PublishPort=80:80
+
+[Install]
+WantedBy=default.target

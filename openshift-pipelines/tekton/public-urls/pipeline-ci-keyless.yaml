@@ -1,0 +1,103 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build
+spec:
+  workspaces:
+  - name: shared-workspace
+  - name: dockerconfig   
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: main
+  - name: IMAGE
+    type: string
+    description: image to be build from the code
+  - name: certificate-identity
+    type: string      
+  - name: oidc-issuer-url
+    type: string      
+  results:
+    - name: IMAGE_URL
+      description: the image url
+      value: $(tasks.build-image.results.IMAGE_URL)
+    - name: IMAGE_DIGEST
+      description: the image digest
+      value: $(tasks.build-image.results.IMAGE_DIGEST)     
+  tasks:
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    - name: dockerconfig
+      workspace: dockerconfig      
+    runAfter:
+    - fetch-repository
+  - name: create-sbom
+    taskRef:
+      name: syft
+      kind: ClusterTask
+    runAfter:
+    - build-image      
+    params:
+    - name: SYFT_ARGS
+      value: 
+      - packages
+      - registry:quay.io/sallyom/pacman@$(tasks.build-image.results.IMAGE_DIGEST)
+      - -o
+      - spdx-json
+      - --file
+      - /attestation_tmp/attestation.sbom
+    - name: COSIGN_SCRIPT
+      value: | 
+        cosign initialize
+        cosign sign quay.io/sallyom/pacman@$(tasks.build-image.results.IMAGE_DIGEST) --yes --identity-token=$(cat $IDENTITY_TOKEN_FILE) --oidc-issuer=$(params.oidc-issuer-url)
+        cosign attest quay.io/sallyom/pacman@$(tasks.build-image.results.IMAGE_DIGEST) --yes --oidc-issuer=$(params.oidc-issuer-url) --identity-token=$(cat $IDENTITY_TOKEN_FILE) --predicate /attestation_tmp/attestation.sbom --type spdxjson --attachment-tag-prefix sbom-
+  - name: create-vulnerability-attestation
+    taskRef:
+      name: grype
+      kind: ClusterTask
+    runAfter:
+    - create-sbom    
+    params:
+    - name: GRYPE_ARGS
+      value: 
+      - registry:quay.io/sallyom/pacman@$(tasks.build-image.results.IMAGE_DIGEST)
+      - --file
+      - /attestation_tmp/attestation.sarif
+      - -o
+      - sarif
+    - name: COSIGN_SCRIPT
+      value: | 
+        cosign initialize
+        # cosign attest keyless flow
+        cosign attest quay.io/sallyom/pacman@$(tasks.build-image.results.IMAGE_DIGEST) --yes --oidc-issuer=$(params.oidc-issuer-url) --identity-token=$(cat $IDENTITY_TOKEN_FILE) --predicate /attestation_tmp/attestation.sarif --type https://cosign.sigstore.dev/attestation/vuln/v1 --attachment-tag-prefix sarif-

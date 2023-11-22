@@ -1,0 +1,15 @@
+ARG API_KEY=""
+ENV API_KEY=$API_KEY
+
+FROM registry.redhat.io/rhel8/python-311:1-35
+
+USER 0
+ADD huggingface.py .
+ADD init_cache.py .
+ADD run-model.py .
+RUN pip install --upgrade pip
+RUN pip install huggingface-hub --upgrade
+RUN API_KEY=$API_KEY python huggingface.py
+RUN pip install torch protobuf transformers sentencepiece numpy --upgrade
+RUN python init_cache.py
+CMD python run-model.py

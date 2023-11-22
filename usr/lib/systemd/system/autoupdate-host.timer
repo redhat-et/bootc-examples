@@ -1,0 +1,7 @@
+[Unit]
+Description=Automatic host upgrades, polling every 5 minutes (with 1m randomness)
+[Timer]
+OnBootSec=5m
+OnUnitInactiveSec=5m
+[Install]
+WantedBy=timers.target

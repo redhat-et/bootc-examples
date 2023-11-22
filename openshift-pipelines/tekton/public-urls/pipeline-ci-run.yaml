@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: build-run-
+spec:
+  pipelineRef:
+    name: build
+  params:
+  - name: deployment-name
+    value: pacman
+  - name: certificate-identity
+    value: tkn-chains@ds219-345702.iam.gserviceaccount.com  
+  - name: oidc-issuer-url
+    value: https://accounts.google.com
+  - name: git-url
+    value: https://github.com/sallyom/mongo-pacman.git
+  - name: IMAGE
+    value: quay.io/sallyom/pacman
+  workspaces:
+  - name: shared-workspace
+    persistentVolumeClaim:
+      claimName: build
+  - name: dockerconfig
+    secret:
+      secretName: quay-push    
