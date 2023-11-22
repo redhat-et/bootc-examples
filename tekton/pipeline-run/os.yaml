@@ -2,8 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   resourceVersion: '1113458689'
-  name: summit-os-build-cent 
-  namespace: test-sigstore 
+  name: summit-os-build-fedora
+  namespace: bootc
 spec:
   params:
     - name: git-url
@@ -26,7 +26,7 @@ spec:
     - name: CONTEXT
       value: .
   pipelineRef:
-    name: mad-city
+    name: bootc-builder 
   serviceAccountName: pipeline
   timeout: 1h0m0s
   workspaces:
