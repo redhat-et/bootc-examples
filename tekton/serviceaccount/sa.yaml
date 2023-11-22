@@ -1,0 +1,28 @@
+apiVersion: v1
+imagePullSecrets:
+- name: quay-push
+- name: pipeline-dockercfg-jmr9t
+- name: rh-reg
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/audience: sigstore
+    eks.amazonaws.com/role-arn: arn:aws:iam::991393792704:role/rosa-workload-identity
+    eks.amazonaws.com/sts-regional-endpoints: "true"
+    eks.amazonaws.com/token-expiration: "86400"
+  creationTimestamp: "2023-11-22T15:58:28Z"
+  name: pipeline
+  namespace: bootc
+  ownerReferences:
+  - apiVersion: operator.tekton.dev/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: TektonConfig
+    name: config
+    uid: 2a95a113-10cb-442b-b55d-ff4c31622a79
+  resourceVersion: "1118589649"
+  uid: df78d182-51e6-47c1-8e2c-0533cf321739
+secrets:
+- name: pipeline-dockercfg-jmr9t
+- name: rh-reg
+- name: quay-push

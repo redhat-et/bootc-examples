@@ -1,0 +1,124 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: bootc-builder 
+  namespace: bootc
+spec:
+  params:
+  - description: url of the git repo for the code of deployment
+    name: git-url
+    type: string
+  - default: main
+    description: revision to be used from repo of the code for deployment
+    name: git-revision
+    type: string
+  - description: image to be build from the code
+    name: IMAGE
+    type: string
+  - name: fulcio-url
+    type: string
+    default: 'https://fulcio.apps.open-svc-sts.k1wl.p1.openshiftapps.com'
+  - name: rekor-url
+    type: string
+    default: 'https://rekor.apps.open-svc-sts.k1wl.p1.openshiftapps.com'
+  - name: certificate-identity
+    type: string
+    default: 'https://kubernetes.io/namespaces/bootc/serviceaccounts/pipeline'
+  - name: oidc-issuer-url
+    type: string
+    default: https://rh-oidc.s3.us-east-1.amazonaws.com/21o4ml1f5kchd6ee9nmh5dhc6efqba38
+  - default: ./Containerfile
+    description: Path to the Dockerfile to build.
+    name: DOCKERFILE
+    type: string
+  - default: .
+    description: Path to the directory to use as context.
+    name: CONTEXT
+    type: string
+  results:
+  - description: the image url
+    name: IMAGE_URL
+    value: $(tasks.build-image.results.IMAGE_URL)
+  - description: the image digest
+    name: IMAGE_DIGEST
+    value: $(tasks.build-image.results.IMAGE_DIGEST)
+  tasks:
+  - name: fetch-repository
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+  - name: build-image
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    - name: DOCKERFILE
+      value: $(params.DOCKERFILE)
+    - name: CONTEXT
+      value: $(params.CONTEXT)
+    runAfter:
+    - fetch-repository
+    taskRef:
+      kind: Task
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+  - name: create-sbom
+    params:
+    - name: SYFT_ARGS
+      value:
+      - packages
+      - $(params.IMAGE)
+      - -o
+      - spdx-json
+      - --file
+      - /attestation_tmp/attestation.sbom
+    - name: BUILDAH_SCRIPT
+      value: |
+        cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json
+    - name: COSIGN_SCRIPT
+      value: |
+        cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json
+        # cosign sign keyless
+        # TODO update tekton chains to initialize with BYO tuf
+        #cosign sign $(params.IMAGE) --yes --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --identity-token=$AWS_WEB_IDENTITY_TOKEN_FILE
+        # cosign attest keyless flow
+        cosign attest $(params.IMAGE) --yes --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --oidc-issuer=$(params.oidc-issuer-url) --identity-token=$AWS_WEB_IDENTITY_TOKEN_FILE --predicate /attestation_tmp/attestation.sbom --type spdxjson --attachment-tag-prefix sbom-
+    runAfter:
+    - build-image
+    taskRef:
+      kind: ClusterTask
+      name: syft
+  - name: create-vulnerability-attestation
+    params:
+    - name: GRYPE_ARGS
+      value:
+      - $(params.IMAGE)
+      - --file
+      - /attestation_tmp/attestation.sarif
+      - -o
+      - sarif
+    - name: COSIGN_SCRIPT
+      value: |
+        cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json
+        # cosign attest keyless flow
+        cosign attest $(params.IMAGE) --yes --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --oidc-issuer=$(params.oidc-issuer-url) --identity-token=$AWS_WEB_IDENTITY_TOKEN_FILE --predicate /attestation_tmp/attestation.sarif --type https://cosign.sigstore.dev/attestation/vuln/v1 --attachment-tag-prefix sarif-
+    runAfter:
+    - create-sbom
+    taskRef:
+      kind: ClusterTask
+      name: grype
+  workspaces:
+  - name: shared-workspace
