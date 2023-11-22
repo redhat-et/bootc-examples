@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   resourceVersion: '1113458689'
-  name: summit-app
+  name: summit-app-1
   namespace: bootc 
 spec:
   params:
@@ -11,7 +11,7 @@ spec:
     - name: git-revision
       value: main
     - name: IMAGE
-      value: quay.io/sallyom/fedora-coreos-custom:app
+      value: quay.io/sallyom/pyrunai
     - name: fulcio-url
       value: 'https://fulcio.apps.open-svc-sts.k1wl.p1.openshiftapps.com'
     - name: rekor-url
