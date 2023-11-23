@@ -61,8 +61,8 @@ spec:
       value: $(params.IMAGE)
     - name: DOCKERFILE
       value: Containerfile
-    - name: CONTEXT
-      value: coreos-layering/auto-update
+    #- name: CONTEXT
+    #  value: "" 
     workspaces:
     - name: source
       workspace: shared-workspace
@@ -91,9 +91,6 @@ spec:
     - name: COSIGN_SCRIPT
       value: | 
         cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json
-        # cosign sign keyless
-        # TODO update tekton chains to initialize with BYO tuf
-        #cosign sign quay.io/sallyom/fedora-coreos-custom@$(tasks.build-os-image.results.IMAGE_DIGEST) --yes --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --identity-token=$AWS_WEB_IDENTITY_TOKEN_FILE
         # cosign attest keyless flow
         cosign attest quay.io/sallyom/fedora-coreos-custom@$(tasks.build-os-image.results.IMAGE_DIGEST) --yes --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --oidc-issuer=$(params.oidc-issuer-url) --identity-token=$AWS_WEB_IDENTITY_TOKEN_FILE --predicate /attestation_tmp/attestation.sbom --type spdxjson --attachment-tag-prefix sbom-
   - name: create-vulnerability-attestation

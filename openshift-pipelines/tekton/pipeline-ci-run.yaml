@@ -1,7 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: build-run-
+  #generateName: build-run-
+  name: so-build-run
 spec:
   timeouts:
     pipeline: "0h30m0s"
@@ -12,9 +13,9 @@ spec:
   - name: deployment-name
     value: fedora-coreos-custom
   - name: certificate-identity
-    value: https://kubernetes.io/namespaces/test-sigstore/serviceaccounts/pipeline 
+    value: https://kubernetes.io/namespaces/bootc/serviceaccounts/pipeline 
   - name: git-url
-    value: https://github.com/sallyom/edge-imagebuild.git
+    value: https://github.com/redhat-et/bootc.git
   - name: IMAGE
     value: quay.io/sallyom/fedora-coreos-custom
   - name: fulcio-url
