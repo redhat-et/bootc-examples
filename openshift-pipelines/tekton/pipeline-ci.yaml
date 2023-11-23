@@ -76,7 +76,7 @@ spec:
     - name: SYFT_ARGS
       value: 
       - packages
-      - registry:quay.io/sallyom/fedora-coreos-custom:38-eln@$(tasks.build-image.results.IMAGE_DIGEST)
+      - registry:quay.io/sallyom/fedora-coreos-custom@$(tasks.build-image.results.IMAGE_DIGEST)
       - -o
       - spdx-json
       - --file
@@ -86,12 +86,6 @@ spec:
         cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json
         #export VAULT_TOKEN=$(cat /vault/secrets/token)
         #
-        # cosign sign with key & issue fulcio-cert
-        # TODO update tekton chains to issue certificate
-        # I don't think the "keyless w/ self-managed key" flow supports kms?
-        # cosign sign quay.io/sallyom/fedora-coreos-custom@$(tasks.build-image.results.IMAGE_DIGEST) --yes --key k8s://test-sigstore/signing-secrets --issue-certificate --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url) --identity-token=$(cat $AWS_WEB_IDENTITY_TOKEN_FILE)
-        #
-        # cosign attest with key
         cosign attest quay.io/sallyom/fedora-coreos-custom@$(tasks.build-image.results.IMAGE_DIGEST) --yes --key k8s://test-sigstore/signing-secrets --rekor-url $(params.rekor-url) --predicate /attestation_tmp/attestation.sbom --type spdxjson --attachment-tag-prefix sbom-
   - name: create-vulnerability-attestation
     taskRef:
