@@ -6,8 +6,10 @@ After=network-online.target
 RequiresMountsFor=%t/containers
 
 [Container]
-Image=quay.io/sallyom/pyrunai:michael
+Image=quay.io/sallyom/fedora-coreos-custom:chatapp
 Label=io.containers.autoupdate=registry
+PublishPort=5555:7680
+PodmanArgs=-it
 
 [Service]
 Restart=always

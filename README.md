@@ -43,19 +43,19 @@ If you are intrigued, you might also check out:
 
 ### How do I run the python AI example?
 
-Embedded in the bootable image is `pyrunai.service` at `/usr/lib/systemd/system/pyrunai.service`
-This service manages a single pod, `pyrunai` that includes an LLM, python, and an example script.
-The image that runs, `quay.io/sallyom/pyrunai:latest` is a whopping 12.7 GB. 
+Embedded in the bootable image is `/usr/share/containers/systemd/chatapp.container`
+`quadlet` will create a systemd service, `chatapp` that includes an LLM, python, and an example script.
+This service manages a podman container that runs `quay.io/sallyom/fedora-coreos-custom:chatapp`. 
 
-To run the script:
+To run the `chatapp` service as an unprivileged user:
 
 ```bash
-$ mkdir -p ~/.config/systemd/user
-$ sudo cp /usr/lib/systemd/system/pyrunai.service ~/.config/systemd/user/.
-$ sudo chown -R ~/.config/systemd/user
-$ systemctl --user enable --now pyrunai
-# the image is 12.7GB, so will take awhile to download 
-$ podman exec -it pyrunai python run-model.py
+$ mkdir -p ~/.config/containers/systemd
+$ sudo cp /usr/share/containers/systemd/chatapp.container ~/.config/containers/systemd/.
+$ sudo chown -R core:core ~/.config/containers/systemd
+$ systemctl --user daemon-reload
+$ systemctl --user enable --now chatapp
+
 ```
 The script will prompt you to ask a question. 
 

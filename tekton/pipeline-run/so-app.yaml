@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: so-app-sign
+  namespace: bootc
+  labels:
+    tekton.dev/pipeline: bootc-builder
+spec:
+  params:
+    - name: git-url
+      value: 'https://github.com/sallyom/locallm.git'
+    - name: git-revision
+      value: summit-demo
+    - name: IMAGE
+      value: 'quay.io/sallyom/fedora-coreos-custom:chatapp'
+    - name: fulcio-url
+      value: 'https://fulcio.apps.open-svc-sts.k1wl.p1.openshiftapps.com'
+    - name: rekor-url
+      value: 'https://rekor.apps.open-svc-sts.k1wl.p1.openshiftapps.com'
+    - name: certificate-identity
+      value: 'https://kubernetes.io/namespaces/bootc/serviceaccounts/pipeline'
+    - name: oidc-issuer-url
+      value: >-
+        https://rh-oidc.s3.us-east-1.amazonaws.com/21o4ml1f5kchd6ee9nmh5dhc6efqba38
+    - name: DOCKERFILE
+      value: ./Containerfile-rh
+    - name: CONTEXT
+      value: .
+  pipelineRef:
+    name: bootc-builder
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: build
