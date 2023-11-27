@@ -5,14 +5,13 @@ This is a bootable container image with Colin Walters's
 example systemd service that provides a local LLM and a python script that utilizes the LLM. The service includes podman-autoupdate to
 enable iteration of the model and script with pushes to a container registry.
 
-
 ### What is this?
 
 This assumes you have already run the following (or the equivalent) from a fedora-coreos system:
 
 ```bash
 sudo su
-rpm-ostree rebase --bypass-driver ostree-unverified-registry:quay.io/sallyom/fedora-coreos-custom:bootc
+rpm-ostree rebase --bypass-driver ostree-unverified-registry:quay.io/sallyom/fedora-coreos-custom:summitdemo
 systemctl reboot
 # the system is now bootc enabled and tracking the given OCI image for updates
 ```
@@ -24,7 +23,7 @@ a registry - when it changes, the host will automatically fetch it and reboot wi
 `bootc upgrade --apply`. 
 
 ```bash
-bootc switch --target-no-signature-verification quay.io/sallyom/fedora-coreos-custom:bootc
+bootc switch --target-no-signature-verification quay.io/sallyom/fedora-coreos-custom:summitdemo
 or
 bootc upgrade --apply
 ```
@@ -47,7 +46,11 @@ Embedded in the bootable image is `/usr/share/containers/systemd/chatapp.contain
 `quadlet` will create a systemd service, `chatapp` that includes an LLM, python, and an example script.
 This service manages a podman container that runs `quay.io/sallyom/fedora-coreos-custom:chatapp`. 
 
-To run the `chatapp` service as an unprivileged user:
+The `chatapp` service will be running in a machine booted from
+`quay.io/sallyom/fedora-coreos-custom:summitdemo`. Interact with the model by navigating the
+browser at `http://machine-ip:5555`. 
+
+To run the `chatapp` service as an unprivileged user, ssh into the system and run:
 
 ```bash
 $ mkdir -p ~/.config/containers/systemd
@@ -56,33 +59,4 @@ $ sudo chown -R core:core ~/.config/containers/systemd
 $ systemctl --user daemon-reload
 $ systemctl --user enable --now chatapp
 
-```
-The script will prompt you to ask a question. 
-
-This is for testing/development only, as you can see from the output below:
-
-```bash
-(app-root) sh-4.4# python run-model.py
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-Please ask me anything: Who is the wealthiest person alive today?
-
-Answer:
-henry ford
-Elapsed time: 0.9215 seconds
-
-(app-root) sh-4.4# python run-model.py
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-Please ask me anything: Write a poem about hockey
-
-Answer:
-The game of hockey is a game of skill and skill and skill. The ball is thrown and the goalie takes aim. The players run and the ball is passed and the goal is scored. The crowd cheers and the players cheer and the crowd roars. The game is a game of skill and skill and skill.
-Elapsed time: 8.3379 seconds
-
-(app-root) sh-4.4# python run-model.py
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-Please ask me anything: What nation is the wealthiest in the world?
-
-Answer:
-u s of america
-Elapsed time: 1.1560 seconds
 ```
