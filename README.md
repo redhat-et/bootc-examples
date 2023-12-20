@@ -5,25 +5,36 @@ This is a bootable container image with Colin Walters's
 example systemd service that provides a local LLM and a python script that utilizes the LLM. The service includes podman-autoupdate to
 enable iteration of the model and script with pushes to a container registry.
 
-### What is this?
+### Convert from AWS CentOS, RHEL (non-ostree based) system to a `bootc` enabled system.
 
-This assumes you have already run the following (or the equivalent) from a fedora-coreos system:
+This assumes you are running from a centOS 9 or RHEL 9 ec2 instance:
+See [bootc install docs](https://github.com/containers/bootc/blob/main/docs/install.md#using-bootc-install-to-filesystem) for more info.
 
 ```bash
 sudo su
-rpm-ostree rebase --bypass-driver ostree-unverified-registry:quay.io/sallyom/fedora-coreos-custom:summitdemo
+podman run --rm --privileged -v /:/target \
+             --pid=host --security-opt label=type:unconfined_t \
+             quay.io/centos-bootc/centos-bootc-cloud:stream9 \
+             bootc install-to-filesystem --no-signature-verification --replace=alongside /target
 systemctl reboot
-# the system is now bootc enabled and tracking the given OCI image for updates
 ```
+
+Note: When you ssh in again, the cloud user has changed from `ec2-user` to `cloud-user` in AWS instance. 
+The system is now bootc enabled and tracking the given OCI image for updates
+o
 
 This example shows an immutable infrastructure model with bootable container images.
 Instead of delivering OS updates in a traditional way, this packages and delivers
-OS images as OCI objects. With podman-autoupdate the system is updated by pushing a new image to
+OS images as OCI objects.
+
+### AutoUpdate with OCI image
+
+With podman-autoupdate the system is updated by pushing a new image to
 a registry - when it changes, the host will automatically fetch it and reboot with
-`bootc upgrade --apply`. 
+`bootc upgrade --apply`. To rebase to a centos-bootc image that has the podman auto-update service enabled:
 
 ```bash
-bootc switch --target-no-signature-verification quay.io/sallyom/fedora-coreos-custom:summitdemo
+bootc switch --no-signature-verification quay.io/sallyom/centos-bootc:autoupdate-cloud
 or
 bootc upgrade --apply
 ```
