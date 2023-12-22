@@ -45,7 +45,7 @@ sudo su
 podman run --rm --privileged -v /:/target \
              --pid=host --security-opt label=type:unconfined_t \
              quay.io/centos-bootc/centos-bootc-cloud:stream9 \
-             bootc install to-filesystem --target-no-signature-verification --replace=alongside /target
+             bootc install to-filesystem --replace=alongside /target
 systemctl reboot
 ```
 
@@ -78,7 +78,7 @@ a registry - when it changes, the host will automatically fetch it and reboot wi
 `bootc upgrade --apply`. To rebase to a fedora-bootc image that has the podman auto-update service enabled:
 
 ```bash
-bootc switch --no-signature-verification quay.io/sallyom/fedora-bootc:autoupdate
+bootc switch quay.io/sallyom/fedora-bootc:autoupdate
 ```
 
 ### Benefits of bootc
@@ -101,7 +101,7 @@ If you are intrigued, you might also check out:
 
 Embedded in the bootable image is `/usr/share/containers/systemd/chatapp.container`
 `quadlet` will create a systemd service, `chatapp` that includes an LLM, python, and an example script.
-This service manages a podman container that runs `quay.io/sallyom/pyrunai:llama2-chatapp`.
+This service manages a podman container that runs `quay.io/sallyom/chatbot:arm`.
 
 The `chatapp` service will be running in a machine booted from
 `quay.io/sallyom/fedora-bootc:autoupdate`. Interact with the model by navigating the
