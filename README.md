@@ -56,20 +56,22 @@ Now that the instance is bootc-enabled,
 follow the above [example to update a bootc system with a custom image](#update-bootc-system-to-a-custom-os-image).
 However, at this time, you must not mix `centos/rhel` based systems with `fedora` based systems. In the future this may not be an issue.
 
-The base images to use for each are currently:
+The base images available currently are listed below.
+
+#### Base bootc images 
 
 ```bash
-# for systems currently running centos or rhel
+# for customizing CentOS or RHEL OS image
 FROM quay.io/centos-bootc/centos-bootc:stream9
 
-# for updating cloud images (AMIs) that are centos or rhel based
+# for customizing cloud images (AMIs) that are CentOS or RHEL based
 FROM quay.io/centos-bootc/centos-bootc-cloud:stream9
 
-# for machines currently running fedora
+# for customizing fedora OS image
 FROM quay.io/centos-bootc/fedora-bootc:eln
 ```
 
-### Auto-update with OCI image
+### Auto-update with bootable OCI image
 
 With podman-autoupdate the system is updated by pushing a new image to
 a registry - when it changes, the host will automatically fetch it and reboot with

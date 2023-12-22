@@ -1,2 +1,1 @@
-qcow2-build/output/manifest*
-qcow2-build/output/qcow2
+qcow2-build/output*

@@ -5,16 +5,17 @@ This example assumes that `virt-manager` is installed, along with `qemu/kvm` and
 ### Create a qcow2 file
 
 Use [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) to create a `qcow2` file.
-First, update the [config.json](./qcow2-build/output/config.json) with your public SSH key contents.
+First, update the [config.json](./qcow2-build/config.json) with your public SSH key contents.
 
 ```bash
 sudo podman run --rm -it \
     --privileged --pull=newer \
     --security-opt label=type:unconfined_t \
+    -v $(pwd)/qcow2-build/config.json:/config.json \
     -v $(pwd)/qcow2-build/output:/output \
     quay.io/centos-bootc/bootc-image-builder:latest \
     --type qcow2 \
-    --config /output/config.json \
+    --config /config.json \
     quay.io/centos-bootc/fedora-bootc:eln
 ```
 
@@ -33,7 +34,7 @@ sudo virt-install \
 
 ### Accessing the virtual machine
 
-If the qcow2 file was built with the example [config.json](./qcow2-build/output/config.json), you can access the system with
+If the qcow2 file was built with the example [config.json](./qcow2-build/config.json), you can access the system with
 
 ```
 sudo virsh domifaddr fedora-bootc (to find the machine ip-address)
