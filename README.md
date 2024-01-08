@@ -45,7 +45,7 @@ sudo su
 podman run --rm --privileged -v /:/target \
              --pid=host --security-opt label=type:unconfined_t \
              quay.io/centos-bootc/centos-bootc-cloud:stream9 \
-             bootc install-to-filesystem --no-signature-verification --replace=alongside /target
+             bootc install to-filesystem --target-no-signature-verification --replace=alongside /target
 systemctl reboot
 ```
 
