@@ -1,1 +1,7 @@
-qcow2-build/output*
+bootc-build/output*
+*.tfvars*
+*.terraform*
+terraform/terraform*
+terraform/metadata*
+*.pem*
+terraform/section*
