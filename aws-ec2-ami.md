@@ -48,6 +48,8 @@ The file will be created as `./bootc-build/output/image/disk.raw`
 
 This assumes an AMI `fedora-bootc-ami` exists in your AWS account and
 you have terraform and AWS CLI `aws` installed on your local system.
+There is a sample [terraform file](./terraform/main.tf). Customize this
+based on the AWS account details. Then:
 
 ```bash
 cd terraform
