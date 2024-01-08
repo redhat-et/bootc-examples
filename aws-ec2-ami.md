@@ -82,7 +82,7 @@ podman push quay.io/your-repo/your-os:tag
 To switch the system to a custom `bootc` target image, ssh into the machine and run
 
 ```
-sudo bootc switch --no-signature-verification quay.io/your-repo/your-os:tag
+sudo bootc switch quay.io/your-repo/your-os:tag
 # quay.io/sallyom/fedora-coreos:autoupdate is a public image built from this repository
 ```
 

@@ -30,7 +30,7 @@ podman push quay.io/your-repo/your-os:tag
 ```bash
 ssh -i ~/.ssh/your-key fedora@vm-ipaddress
 
-sudo bootc switch --no-signature-verification quay.io/your-repo/your-os:tag
+sudo bootc switch quay.io/your-repo/your-os:tag
 sudo reboot
 ```
 
