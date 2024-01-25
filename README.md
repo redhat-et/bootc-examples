@@ -12,13 +12,6 @@ To launch a bootc-enabled virtual machine with KVM/QEMU, see [virt-install docum
 
 ### Customize the bootc image
 
-This repository holds the files to build a bootable container image with Colin Walters's
-[autonomous-podman-hello](https://gitlab.com/CentOS/cloud/sagano-examples/-/tree/main/autonomous-podman-hello?ref_type=heads), and also an
-example systemd service that provides a local LLM and a python script that utilizes the LLM. The service includes podman-autoupdate to
-enable iteration of the model and script with pushes to a container registry.
-
-### Update bootc system to a custom OS image
-
 To build a custom bootc image derived from `quay.io/centos-bootc/fedora-bootc:eln`, customize the
 [Containerfile](./Containerfile) as desired, then run
 
@@ -99,11 +92,11 @@ If you are intrigued, you might also check out:
 
 ### How do I run the python AI example?
 
-Embedded in the bootable image is `/usr/share/containers/systemd/chatapp.container`
+Embedded in the bootable image is `/etc/containers/systemd/chatapp.container`
 `quadlet` will create a systemd service, `chatapp` that includes an LLM, python, and an example script.
-This service manages a podman container that runs `quay.io/sallyom/chatbot:arm`.
+This service manages a podman container that runs `quay.io/sallyom/chatbot:model-service`.
 
 The `chatapp` service will be running in a machine booted from
-`quay.io/sallyom/fedora-bootc:autoupdate`. Interact with the model by navigating the
-browser at `http://machine-ip:5555`. 
+`quay.io/sallyom/fedora-bootc:autoupdate` `quay.io/sallyom/fedora-bootc:autoupdate-arm`.
+Interact with the model by navigating the browser at `http://machine-ip:7860`. 
 

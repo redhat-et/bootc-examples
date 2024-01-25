@@ -1,7 +1,0 @@
-[Unit]
-Description=Automatic host upgrades
-[Service]
-Type=simple
-# Note that this will be a no-op if there are no changes.
-ExecStart=bootc upgrade --apply
-StandardOutput=null

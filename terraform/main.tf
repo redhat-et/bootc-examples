@@ -57,6 +57,13 @@ resource "aws_security_group" "fedora-bootc-access" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
+    description = "CHATAPP"
+    from_port   = 7860
+    to_port     = 7860
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
     description = "HTTPS from VPC"
     from_port   = 443
     to_port     = 443
