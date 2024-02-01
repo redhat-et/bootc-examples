@@ -15,15 +15,16 @@ sudo podman run \
     --privileged \
     --pull=newer \
     --security-opt label=type:unconfined_t \
+    -v $(pwd)/config.json:/config.json \
     -v $HOME/.aws:/root/.aws:ro \
     --env AWS_PROFILE=default \
     quay.io/centos-bootc/bootc-image-builder:latest \
     --type ami \
-    --aws-ami-name fedora-bootc-ami \
-    --aws-bucket fedora-bootc-bucket \
+    --aws-ami-name centos-bootc-ami \
+    --aws-bucket centos-bootc-bucket \
     --aws-region us-east-1 \
     --config /config.json \
-    quay.io/centos-bootc/fedora-bootc:eln
+    quay.io/centos-bootc/centos-bootc:stream9
 ```
 
 This command will build an AMI and save it to the local directory `bootc-build/output/image/disk.raw`
@@ -36,17 +37,18 @@ sudo podman run \
     --pull=newer \
     --security-opt label=type:unconfined_t \
     -v $(pwd)/bootc-build/output:/output \
+    -v $(pwd)/config.json:/config.json \
     quay.io/centos-bootc/bootc-image-builder:latest \
     --type ami \
     --config /config.json \
-    quay.io/centos-bootc/fedora-bootc:eln
+    quay.io/centos-bootc/centos-bootc:stream9
 ```
 
 The file will be created as `./bootc-build/output/image/disk.raw`
 
 ### Launch an ec2 instance with terraform
 
-This assumes an AMI `fedora-bootc-ami` exists in your AWS account and
+This assumes an AMI `centos-bootc-ami` exists in your AWS account and
 you have terraform and AWS CLI `aws` installed on your local system.
 There is a sample [terraform file](./terraform/main.tf). Customize this
 based on the AWS account details. Then:
@@ -63,12 +65,12 @@ terraform apply
 If the AMI was built with the example [config.json](./bootc-build/config.json), you can access the system with
 
 ```
-ssh -i /path/to/private/ssh-key fedora@ip-address
+ssh -i /path/to/private/ssh-key centos@ip-address
 ```
 
 ### Updating from the base image to a custom image
 
-The [Containerfile](./Containerfile) describes how to create a derived OS image from the base `quay.io/centos-bootc/fedora-bootc:eln` image.
+The [Containerfile](./Containerfile) describes how to create a derived OS image from the base `quay.io/centos-bootc/centos-bootc:stream9` image.
 This Containerfile adds passwordless sudo as well as an autoupdate systemd service. With this service, any push to the bootc targeted image
 will result in the virtual machine rebooting into the updated OS.
 
@@ -83,17 +85,7 @@ To switch the system to a custom `bootc` target image, ssh into the machine and 
 
 ```
 sudo bootc switch quay.io/your-repo/your-os:tag
-# quay.io/sallyom/fedora-coreos:autoupdate is a public image built from this repository
 ```
 
 The system will pull down the necessary layers, and upon reboot will be enabled with an autoupdate service
 for the target `quay.io/your-repo/your-os:tag`.
-
-There is also an AI ChatApp quadlet included in this repository's Containerfile.
-If `bootc switch`'d into this image, a (large) AI application will also be started. Remove [the chatapp quadlet](./usr/share/containers/systemd/chatapp.container)
-before building your own derived OS image if this is not desired.
-
-There is also a caddy file-server quadlet included in this repository's Containerfile.
-If `bootc switch`'d into this image, a caddy application will be started. Remove [the caddy quadlet](./usr/share/containers/systemd/hello.container)
-before building your own derived OS image if this is not desired.
-

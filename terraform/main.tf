@@ -21,11 +21,11 @@ data "aws_route53_zone" "domain" {
   private_zone = false
 }
 
-data "aws_ami" "fedora_bootc" {
+data "aws_ami" "centos_bootc" {
   most_recent = true
   filter {
     name = "name"
-    values = ["fedora-bootc-ami"]
+    values = ["centos-bootc-ami"]
   }
   filter {
     name = "architecture"
@@ -40,17 +40,17 @@ resource "aws_eip" "eip_assoc" {
 
 // Associate elastic ip address with instance
 resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.fedora_bootc_test.id
+  instance_id   = aws_instance.centos_bootc_test.id
   allocation_id = aws_eip.eip_assoc.id
 }
 
 // generate a new security group to allow ssh and https traffic
-resource "aws_security_group" "fedora-bootc-access" {
-  name        = "fedora-bootc-access"
+resource "aws_security_group" "centos-bootc-access" {
+  name        = "centos-bootc-access"
   description = "Allow ssh and https traffic"
   vpc_id      = var.vpc_id
   ingress {
-    description = "SSH from VPC"
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -58,13 +58,20 @@ resource "aws_security_group" "fedora-bootc-access" {
   }
   ingress {
     description = "CHATAPP"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "MODELSERVICE"
     from_port   = 7860
     to_port     = 7860
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "HTTPS from VPC"
+    description = "HTTPS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -83,10 +90,10 @@ resource "aws_key_pair" "sshkey" {
   public_key = "${file(var.ssh_public_key_path)}"
 }
 
-resource "aws_instance" "fedora_bootc_test" {
-  ami           = data.aws_ami.fedora_bootc.id
+resource "aws_instance" "centos_bootc_test" {
+  ami           = data.aws_ami.centos_bootc.id
   instance_type = "a1.xlarge"
-  vpc_security_group_ids = [aws_security_group.fedora-bootc-access.id]
+  vpc_security_group_ids = [aws_security_group.centos-bootc-access.id]
   key_name      = aws_key_pair.sshkey.key_name
   provisioner "remote-exec" {
     inline = [
@@ -103,14 +110,14 @@ resource "aws_instance" "fedora_bootc_test" {
 
   connection {
    type = "ssh"
-   user = "fedora"
+   user = "centos"
    private_key = file(var.ssh_private_key_path)
    host = self.public_ip
  }
 }
 
 //resource "null_resource" "configure-instance" {
-//  depends_on = [aws_instance.fedora_bootc_test]
+//  depends_on = [aws_instance.centos_bootc_test]
 //  provisioner "local-exec" {
 //  command = "ansible-playbook -i inventory playbooks/install.yml -e registry_username='${var.rh_username}' -e registry_password='${var.rh_password}' -e base_hostname=${var.base_domain}"
 //  }

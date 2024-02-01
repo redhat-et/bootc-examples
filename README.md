@@ -12,7 +12,7 @@ To launch a bootc-enabled virtual machine with KVM/QEMU, see [virt-install docum
 
 ### Customize the bootc image
 
-To build a custom bootc image derived from `quay.io/centos-bootc/fedora-bootc:eln`, customize the
+To build a custom bootc image derived from `quay.io/centos-bootc/centos-bootc:stream9`, customize the
 [Containerfile](./Containerfile) as desired, then run
 
 ```bash
@@ -21,7 +21,7 @@ podman push quay.io/your-repo/your-os:tag
 ```
 
 ```bash
-ssh -i ~/.ssh/your-key fedora@vm-ipaddress
+ssh -i ~/.ssh/your-key centos@vm-ipaddress
 
 sudo bootc switch quay.io/your-repo/your-os:tag
 sudo reboot
@@ -45,13 +45,9 @@ systemctl reboot
 **Note:** When you ssh in again, the cloud user has changed from `ec2-user` to `cloud-user` in AWS instance. 
 The system is now bootc enabled and tracking the given OCI image for updates
 
-Now that the instance is bootc-enabled,
-follow the above [example to update a bootc system with a custom image](#update-bootc-system-to-a-custom-os-image).
-However, at this time, you must not mix `centos/rhel` based systems with `fedora` based systems. In the future this may not be an issue.
+#### Base bootc images 
 
 The base images available currently are listed below.
-
-#### Base bootc images 
 
 ```bash
 # for customizing CentOS or RHEL OS image
@@ -66,37 +62,25 @@ FROM quay.io/centos-bootc/fedora-bootc:eln
 
 ### Auto-update with bootable OCI image
 
-With podman-autoupdate the system is updated by pushing a new image to
-a registry - when it changes, the host will automatically fetch it and reboot with
-`bootc upgrade --apply`. To rebase to a fedora-bootc image that has the podman auto-update service enabled:
+The base bootc images are configured with podman-autoupdate.
+With podman-autoupdate the system is updated by pushing a new bootc OCI image to
+a registry - on a timer, when the digest changes, the host will automatically fetch it and reboot with
+`bootc upgrade --apply`.
+
+To switch the bootc image that your system is tracking, run
 
 ```bash
-bootc switch quay.io/sallyom/fedora-bootc:autoupdate
+bootc switch quay.io/your/newimage:custom
 ```
 
-### Benefits of bootc
+Upon a reboot, the system will now be running with your custom OS.
+At the time of this writing, it is not possible to switch from a CentOS based bootc image to a Fedora based image, or vice versa. 
 
-OCI image tools can be utilized to streamline and simplify OS updates.
-Mostly immutable (read-only) systems discourages infrastructure drift with atomic upgrades.
+### How do I run the python chatbot AI example?
 
-Instead of delivering OS updates in a traditional way, bootc packages and delivers
-OS images as OCI objects. All the OCI tools you are familiar with can now be used to manage the operating system.
-With fleets of systems, this centralized pull-based model simplifies updates.
+Embedded in the bootable image is `/etc/containers/systemd/chatbot.kube`, `/etc/containers/systemd/chatbot.yaml`, and `/etc/systemd/chatbot.image`.
+`quadlet` will create a systemd service, `chatbot` that includes an LLM, python, and an example script.
+This service manages a podman pod.
 
-If you are intrigued, you might also check out:
-
-2. [CoreOS layering examples](https://github.com/coreos/layering-examples)
-3. [Universal Blue](https://universal-blue.org/)
-4. [OSTree](https://ostreedev.github.io/ostree/#operating-systems-and-distributions-using-ostree)
-5. [bootc](https://github.com/containers/bootc/tree/main)
-
-### How do I run the python AI example?
-
-Embedded in the bootable image is `/etc/containers/systemd/chatapp.container`
-`quadlet` will create a systemd service, `chatapp` that includes an LLM, python, and an example script.
-This service manages a podman container that runs `quay.io/sallyom/chatbot:model-service`.
-
-The `chatapp` service will be running in a machine booted from
-`quay.io/sallyom/fedora-bootc:autoupdate` `quay.io/sallyom/fedora-bootc:autoupdate-arm`.
-Interact with the model by navigating the browser at `http://machine-ip:7860`. 
+Interact with the application by navigating to the browser at `http://machine-ip:8080`. 
 
