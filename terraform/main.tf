@@ -92,7 +92,15 @@ resource "aws_key_pair" "sshkey" {
 
 resource "aws_instance" "centos_bootc_test" {
   ami           = data.aws_ami.centos_bootc.id
-  instance_type = "a1.xlarge"
+  root_block_device {
+    volume_size = 100
+    volume_type = "gp2"
+  }
+  cpu_options {
+    core_count       = 32
+    threads_per_core = 1
+  }
+  instance_type = "c6gd.8xlarge"
   vpc_security_group_ids = [aws_security_group.centos-bootc-access.id]
   key_name      = aws_key_pair.sshkey.key_name
   provisioner "remote-exec" {

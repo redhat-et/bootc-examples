@@ -1,10 +1,8 @@
 ## Bootable container images with autoupdate systemd service
 
 This repository shows an example to customize a base bootc image with desired features.
-An autoupdate service and passwordless sudo are added to a base bootc image.
-Embedded in this repository is also a quadlet (systemd managed podman container) to run a local AI chat application,
-as well as a quadlet to run a caddy web-server application. Use the examples from this repository to create your own
-customized bootc-enabled operating system image. 
+This repository also contains quadlet files (for running systemd managed podman containers) to embed an AI chat application,
+Use the examples from this repository to create your own customized bootc-enabled operating system image. 
 
 ### Get started with a bootc-enabled virtual machine
 
@@ -64,7 +62,7 @@ FROM quay.io/centos-bootc/fedora-bootc:eln
 
 The base bootc images are configured with podman-autoupdate.
 With podman-autoupdate the system is updated by pushing a new bootc OCI image to
-a registry - on a timer, when the digest changes, the host will automatically fetch it and reboot with
+a registry - on a timer, when the image digest changes, the host will automatically fetch it and reboot with
 `bootc upgrade --apply`.
 
 To switch the bootc image that your system is tracking, run
@@ -78,9 +76,10 @@ At the time of this writing, it is not possible to switch from a CentOS based bo
 
 ### How do I run the python chatbot AI example?
 
-Embedded in the bootable image is `/etc/containers/systemd/chatbot.kube`, `/etc/containers/systemd/chatbot.yaml`, and `/etc/systemd/chatbot.image`.
-`quadlet` will create a systemd service, `chatbot` that includes an LLM, python, and an example script.
+Embedded in the bootable image built from [bootc-build/Containerfile](./bootc-build/Containerfil) are quadlet files for running an AI powered chatbot.
+The files `/etc/containers/systemd/chatbot.kube`, `/etc/containers/systemd/chatbot.yaml`, and `/etc/systemd/chatbot.image` result in
+a systemd service, `chatbot` that includes an LLM, a model-service, and an example application.
 This service manages a podman pod.
 
-Interact with the application by navigating to the browser at `http://machine-ip:8080`. 
+Interact with the application by navigating to the browser at `http://machine-ip:8080` or `http://machine-ip:8051` depending on which chatbot is embedded. 
 
