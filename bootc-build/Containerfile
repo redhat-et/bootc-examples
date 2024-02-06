@@ -1,14 +1,17 @@
 FROM quay.io/centos-bootc/centos-bootc:stream9
 
+# This will be configured in default base images, add it here for now
 COPY storage.conf /etc/containers/storage.conf
-COPY workloads/chatbot/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
-COPY workloads/chatbot/quadlet/chatbot.yaml /etc/containers/systemd/chatbot.yaml
-COPY workloads/chatbot/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
+
+# Original application
+#COPY workloads/chatbot/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
+#COPY workloads/chatbot/quadlet/chatbot.yaml /etc/containers/systemd/chatbot.yaml
+#COPY workloads/chatbot/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
 
 # Updated application, better UI
-#COPY workloads/chatbot-langchain/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
-#COPY workloads/chatbot-langchain/quadlet/chatbot.yaml /etc/containers/systemd/chatbot.yaml
-#COPY workloads/chatbot-langchain/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
+COPY workloads/chatbot-langchain/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
+COPY workloads/chatbot-langchain/quadlet/chatbot.yaml /etc/containers/systemd/chatbot.yaml
+COPY workloads/chatbot-langchain/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
 
 RUN echo "root:secure" | chpasswd
 COPY wheel-passwordless-sudo /etc/sudoers.d/wheel-passwordless-sudo

@@ -63,12 +63,3 @@ sudo bootc switch quay.io/your-repo/your-os:tag
 
 The system will pull down the necessary layers, and upon reboot will be enabled with an autoupdate service
 for the target `quay.io/your-repo/your-os:tag`.
-
-There is also an AI ChatApp quadlet included in this repository's Containerfile.
-If `bootc switch`'d into this image, a (large) AI application will also be started. Remove [the chatapp quadlet](./usr/share/containers/systemd/chatapp.container)
-before building your own derived OS image if this is not desired.
-
-There is also a caddy file-server quadlet included in this repository's Containerfile.
-If `bootc switch`'d into this image, a caddy application will be started. Remove [the caddy quadlet](./usr/share/containers/systemd/hello.container)
-before building your own derived OS image if this is not desired.
-
