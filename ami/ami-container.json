@@ -1,0 +1,5 @@
+{
+   "Description": "rhel94-bootc",
+   "Format": "raw",
+   "Url": "s3://somaltest/disk.raw"
+}

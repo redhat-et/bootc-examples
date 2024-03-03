@@ -21,15 +21,15 @@ data "aws_route53_zone" "domain" {
   private_zone = false
 }
 
-data "aws_ami" "centos_bootc" {
+data "aws_ami" "rhel_bootc" {
   most_recent = true
   filter {
     name = "name"
-    values = ["centos-bootc-ami"]
+    values = ["somal-rhel-bootc-94"]
   }
   filter {
     name = "architecture"
-    values = ["arm64"]
+    values = ["x86_64"]
   }
 }
 
@@ -40,13 +40,13 @@ resource "aws_eip" "eip_assoc" {
 
 // Associate elastic ip address with instance
 resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.centos_bootc_test.id
+  instance_id   = aws_instance.rhel_bootc_test.id
   allocation_id = aws_eip.eip_assoc.id
 }
 
 // generate a new security group to allow ssh and https traffic
-resource "aws_security_group" "centos-bootc-access" {
-  name        = "centos-bootc-access"
+resource "aws_security_group" "rhel-bootc-access" {
+  name        = "rhel-bootc-access"
   description = "Allow ssh and https traffic"
   vpc_id      = var.vpc_id
   ingress {
@@ -65,8 +65,8 @@ resource "aws_security_group" "centos-bootc-access" {
   }
   ingress {
     description = "MODELSERVICE"
-    from_port   = 7860
-    to_port     = 7860
+    from_port   = 8501
+    to_port     = 8501
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -90,18 +90,19 @@ resource "aws_key_pair" "sshkey" {
   public_key = "${file(var.ssh_public_key_path)}"
 }
 
-resource "aws_instance" "centos_bootc_test" {
-  ami           = data.aws_ami.centos_bootc.id
+resource "aws_instance" "rhel_bootc_test" {
+  ami           = data.aws_ami.rhel_bootc.id
   root_block_device {
-    volume_size = 100
-    volume_type = "gp2"
+    volume_size = 90
+    volume_type = "gp3"
   }
-  cpu_options {
-    core_count       = 32
-    threads_per_core = 1
-  }
-  instance_type = "c6gd.8xlarge"
-  vpc_security_group_ids = [aws_security_group.centos-bootc-access.id]
+  //cpu_options {
+  //  core_count       = 32
+  //  threads_per_core = 1
+  //}
+  //instance_type = "c6gd.8xlarge"
+  instance_type = "g5.2xlarge"
+  vpc_security_group_ids = [aws_security_group.rhel-bootc-access.id]
   key_name      = aws_key_pair.sshkey.key_name
   provisioner "remote-exec" {
     inline = [
@@ -118,14 +119,14 @@ resource "aws_instance" "centos_bootc_test" {
 
   connection {
    type = "ssh"
-   user = "centos"
+   user = "root"
    private_key = file(var.ssh_private_key_path)
    host = self.public_ip
  }
 }
 
 //resource "null_resource" "configure-instance" {
-//  depends_on = [aws_instance.centos_bootc_test]
+//  depends_on = [aws_instance.rhel_bootc_test]
 //  provisioner "local-exec" {
 //  command = "ansible-playbook -i inventory playbooks/install.yml -e registry_username='${var.rh_username}' -e registry_password='${var.rh_password}' -e base_hostname=${var.base_domain}"
 //  }

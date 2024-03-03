@@ -1,4 +1,5 @@
-FROM quay.io/centos-bootc/centos-bootc:stream9
+#FROM quay.io/centos-bootc/centos-bootc:stream9
+FROM quay.io/sallyom/centos-bootc:rhel94
 
 # This will be configured in default base images, add it here for now
 COPY storage.conf /etc/containers/storage.conf
@@ -16,7 +17,7 @@ COPY workloads/chatbot-langchain/quadlet/chatbot.image /etc/containers/systemd/c
 RUN echo "root:secure" | chpasswd
 COPY wheel-passwordless-sudo /etc/sudoers.d/wheel-passwordless-sudo
 
-RUN podman pull --root=/usr/lib/containers/storage quay.io/sallyom/chatbot:inference
+#RUN podman pull --root=/usr/lib/containers/storage quay.io/sallyom/chatbot:inference
 RUN dnf install -y vim && dnf clean all
 RUN mkdir /usr/etc-system && \
     echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \

@@ -24,7 +24,7 @@ sudo podman run \
     --aws-bucket centos-bootc-bucket \
     --aws-region us-east-1 \
     --config /config.json \
-    quay.io/centos-bootc/centos-bootc:stream9
+    quay.io/sallyom/centos-bootc:rhel94
 ```
 
 This command will build an AMI and save it to the local directory `bootc-build/output/image/disk.raw`
@@ -45,6 +45,14 @@ sudo podman run \
 ```
 
 The file will be created as `./bootc-build/output/image/disk.raw`
+
+Then, to push to AWS s3 bucket & register the ami,
+
+```bash
+aws s3 cp $(pwd)/bootc-build/output/disk.raw s3://your-s3-bucket-name
+aws ec2 import-snapshot --description "rhel94-bootc" --disk-container file://ami-container.json
+# Now you can create an AMI from the snapshot in the AWS console
+```
 
 ### Launch an ec2 instance with terraform
 

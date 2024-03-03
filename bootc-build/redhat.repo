@@ -1,0 +1,27 @@
+[rhocp]
+baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/$basearch/rhocp/4.14/os/
+enabled=1
+gpgcheck=0
+
+[fast-datapath]
+baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/$basearch/fast-datapath/os/
+enabled=1
+gpgcheck=0
+
+[epel]
+name=epel 9
+baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/
+enabled=1
+gpgcheck=0
+
+[rhel-9.3-baseos]
+baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/rhel9/9.3/$basearch/baseos/os/
+enabled=1
+gpgcheck=0
+
+[rhel-9.3-appstream]
+baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/rhel9/9.3/$basearch/appstream/os/
+enabled=1
+gpgcheck=0
+
+
