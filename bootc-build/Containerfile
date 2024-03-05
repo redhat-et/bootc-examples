@@ -2,7 +2,7 @@
 FROM quay.io/sallyom/centos-bootc:rhel94
 
 # This will be configured in default base images, add it here for now
-COPY storage.conf /etc/containers/storage.conf
+#COPY storage.conf /etc/containers/storage.conf
 
 # Original application
 #COPY workloads/chatbot/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
@@ -10,18 +10,18 @@ COPY storage.conf /etc/containers/storage.conf
 #COPY workloads/chatbot/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
 
 # Updated application, better UI
-COPY workloads/chatbot-langchain/quadlet/chatbot.kube.example /etc/containers/systemd/chatbot.kube
-COPY workloads/chatbot-langchain/quadlet/chatbot.yaml /etc/containers/systemd/chatbot.yaml
-COPY workloads/chatbot-langchain/quadlet/chatbot.image /etc/containers/systemd/chatbot.image
+COPY workloads/code-generation/quadlet/codegen.kube.example /etc/containers/systemd/codegen.kube
+COPY workloads/code-generation/quadlet/codegen.yaml /etc/containers/systemd/codegen.yaml
+COPY workloads/code-generation/quadlet/codegen.image /etc/containers/systemd/codegen.image
 
 RUN echo "root:secure" | chpasswd
 COPY wheel-passwordless-sudo /etc/sudoers.d/wheel-passwordless-sudo
 
 #RUN podman pull --root=/usr/lib/containers/storage quay.io/sallyom/chatbot:inference
-RUN dnf install -y vim && dnf clean all
-RUN mkdir /usr/etc-system && \
-    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
-    echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCk9QKBm4nfox+NijF/DYwbS1MB84MD62ucw7aggBjjywTe0TaXogJn95BzT/3bHq8uPBWdx3/YZxXqKjfi/Ac8HG8v31q6DoNJdP6YVy3vx6K3SorhZZJzV2tXTwF3S3AIudTe7NocShoVaFzSIwmzmn7dk5kydcd74Bl4kLZrkUtaMNtRrw6Yadxk1Gktu5NrfHFlKRvtYpK3RVaF+mNyEebp7aXR6i4d1V715AB6jL0GssMgVcIO2xo0zx2H5R25C7JHlxtNPwdap846WfHxNQeH8Up7SM31D/8q+cZ4kjWGFPFti0Ok1vQIMDJbOPnnFvLJp+iTzOBwPSm/cTrp somalley@chandi.usersys.redhat.com' > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
+#RUN dnf install -y vim && dnf clean all
+#RUN mkdir /usr/etc-system && \
+#    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+#    echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCk9QKBm4nfox+NijF/DYwbS1MB84MD62ucw7aggBjjywTe0TaXogJn95BzT/3bHq8uPBWdx3/YZxXqKjfi/Ac8HG8v31q6DoNJdP6YVy3vx6K3SorhZZJzV2tXTwF3S3AIudTe7NocShoVaFzSIwmzmn7dk5kydcd74Bl4kLZrkUtaMNtRrw6Yadxk1Gktu5NrfHFlKRvtYpK3RVaF+mNyEebp7aXR6i4d1V715AB6jL0GssMgVcIO2xo0zx2H5R25C7JHlxtNPwdap846WfHxNQeH8Up7SM31D/8q+cZ4kjWGFPFti0Ok1vQIMDJbOPnnFvLJp+iTzOBwPSm/cTrp somalley@chandi.usersys.redhat.com' > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
 
 ENTRYPOINT ["/sbin/init"]
 
