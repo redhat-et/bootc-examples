@@ -1,6 +1,5 @@
-FROM  registry-proxy.engineering.redhat.com/rh-osbs/rhel9-rhel_bootc:rhel-9.4
-
-COPY redhat.repo /etc/yum.repos.d/redhat.repo
+FROM quay.io/centos-bootc/centos-bootc:stream9
+COPY wheel-passwordless-sudo /etc/sudoers.d/wheel-passwordless-sudo
 RUN dnf update -y && dnf install -y vim httpd && dnf clean all
 
 # The following will set up the root user with ssh access via ssh key-pair. Add your ssh public key in the same way, or,
@@ -15,3 +14,4 @@ RUN mkdir /usr/etc-system && \
     echo 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA2vfgIjZRMlDQ0ck5ub8S2sfgG1HTML3Y8lsA3yOz/UsVJY/vxnDVrLLZPNk3hLSAVP+W9+j+pF1XsnjQ6aVbrsSxuGkFQvJoZeK3EjZ0A55lqEvJPG9+IUi7rqHBh5yU/ZX9fQ6KkvmB2ECGR1CqOR1uednPJJ/7fHeTElycgOGlYT6hafuo5RV6O3GITA4VAKZdIE+0+N37p0Yej+vIVYG4iRZ7Jgk+ZnZlwyi8IG06CJfuGwpAw76c/rvI6GYYueFwfGjUxo474ReNn53GyBGnM9NtoBdWGFSiPeET7056kfV4TSNDMB24js8lrho3TqE3wl+szkBeKU3oAZ9okQ== dwalsh@localhost.localdomain' >> /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
 
 CMD ["/sbin/init"]
+
