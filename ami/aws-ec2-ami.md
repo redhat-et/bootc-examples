@@ -14,6 +14,7 @@ sudo podman run \
     -it \
     --privileged \
     --pull=newer \
+    -v $(pwd)/config.json:/config.json \
     -v $HOME/.aws:/root/.aws:ro \
     --env AWS_PROFILE=default \
     quay.io/centos-bootc/bootc-image-builder:latest \
@@ -21,6 +22,7 @@ sudo podman run \
     --aws-ami-name centos-bootc-ami \
     --aws-bucket centos-bootc-bucket \
     --aws-region us-east-1 \
+    --config /config.json \
     <your-custom-bootc-image>
 ```
 
@@ -33,12 +35,14 @@ sudo podman run \
     --privileged \
     --pull=newer \
     -v $(pwd)/bootc-build/output:/output \
+    -v $(pwd)/config.json:/config.json \
     quay.io/centos-bootc/bootc-image-builder:latest \
     --type ami \
+    --config /config.json \
     <your-custom-bootc-image>
 ```
 
-The file will be created as `./bootc-build/output/image/disk.raw`
+The file will be created as `./output/image/disk.raw`
 
 Then, to push to AWS s3 bucket & register the ami,
 
@@ -50,7 +54,7 @@ aws ec2 import-snapshot --description "rhel94-bootc" --disk-container file://ami
 
 ### Launch an ec2 instance with terraform
 
-This assumes an AMI `centos-bootc-ami` exists in your AWS account and
+This assumes an AMI `centos-bootc` exists in your AWS account and
 you have terraform and AWS CLI `aws` installed on your local system.
 There is a sample [terraform file](./terraform/main.tf). Customize this
 based on the AWS account details. Then:
@@ -65,7 +69,7 @@ terraform apply
 ### Accessing the instance
 
 ```
-ssh -i /path/to/private/ssh-key root@ip-address
+ssh -i /path/to/private/ssh-key centos@ip-address
 ```
 
 ### Updating from the base image to a custom image

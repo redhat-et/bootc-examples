@@ -1,5 +1,5 @@
 {
-   "Description": "rhel94-bootc",
+   "Description": "centos-bootc",
    "Format": "raw",
    "Url": "s3://somaltest/disk.raw"
 }
