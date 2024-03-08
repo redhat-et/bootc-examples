@@ -1,3 +1,7 @@
+# Archived 3/8/2024
+## All examples for bootc OCI bootable containers and image-based OS moved [here](https://gitlab.com/bootc-org/examples)
+
+
 ## Bootable container images with autoupdate systemd service
 
 This repository shows an example to customize a base bootc image with desired features.
